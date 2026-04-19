@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "apps.datasets",
     "apps.runs",
     "apps.core",
+    "apps.prompts",
 ]
 
 MIDDLEWARE = [
