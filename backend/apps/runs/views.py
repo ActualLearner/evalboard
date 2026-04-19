@@ -13,7 +13,15 @@ class RunListView(APIView):
         return Response(RunSerializer(runs, many=True).data)
 
     def post(self, request):
+        REQUIRES_BYOK = ["openai"]
+        provider = request.data.get("provider")
         api_key = request.headers.get("X-API-Key") or None
+
+        if not api_key and provider in REQUIRES_BYOK:
+            return Response(
+                {"error": f"{provider} requires you to provide your own API key."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         try:
             dataset = Dataset.objects.get(pk=request.data.get("dataset"))
