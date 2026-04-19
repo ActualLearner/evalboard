@@ -1,2 +1,8 @@
+import re
+
+
 def exact_match(output: str, ideal: str) -> float:
-    return 1.0 if output.strip().lower() == ideal.strip().lower() else 0.0
+    def normalize(s):
+        return re.sub(r"[^\w\s]", "", s).strip().lower()
+
+    return 1.0 if normalize(output) == normalize(ideal) else 0.0
