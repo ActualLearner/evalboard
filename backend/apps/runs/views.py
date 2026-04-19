@@ -5,6 +5,9 @@ from apps.datasets.models import Dataset
 from .models import Run
 from .serializers import RunSerializer
 from .services import execute_run
+from .stats import get_dashboard_stats
+
+REQUIRES_BYOK = ["openai"]
 
 
 class RunListView(APIView):
@@ -13,9 +16,8 @@ class RunListView(APIView):
         return Response(RunSerializer(runs, many=True).data)
 
     def post(self, request):
-        REQUIRES_BYOK = ["openai"]
-        provider = request.data.get("provider")
         api_key = request.headers.get("X-API-Key") or None
+        provider = request.data.get("provider")
 
         if not api_key and provider in REQUIRES_BYOK:
             return Response(
@@ -31,7 +33,7 @@ class RunListView(APIView):
         run = Run.objects.create(
             dataset=dataset,
             prompt_template=request.data.get("prompt_template"),
-            provider=request.data.get("provider"),
+            provider=provider,
             model=request.data.get("model"),
             temperature=float(request.data.get("temperature", 0.7)),
         )
@@ -53,3 +55,9 @@ class RunDetailView(APIView):
         except Run.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         return Response(RunSerializer(run).data)
+
+
+class DashboardStatsView(APIView):
+    def get(self, request):
+        period = request.query_params.get("period", "7d")
+        return Response(get_dashboard_stats(period))
