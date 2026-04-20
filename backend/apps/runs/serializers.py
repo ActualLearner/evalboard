@@ -8,7 +8,13 @@ class RunItemResultSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RunItemResult
-        fields = ["id", "dataset_item", "model_output", "score"]
+        fields = [
+            "id",
+            "dataset_item",
+            "model_output",
+            "score",
+            "latency_ms",
+        ]
 
 
 class RunSerializer(serializers.ModelSerializer):
@@ -25,5 +31,9 @@ class RunSerializer(serializers.ModelSerializer):
             "temperature",
             "status",
             "created_at",
+            "avg_score",
+            "total_items",
+            "failed_items",
+            "latency_ms",  # ← latency_ms here
             "results",
         ]
