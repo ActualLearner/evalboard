@@ -28,6 +28,7 @@ export default function DashboardPage() {
     const [recentRuns, setRecentRuns] = useState([])
     const [loadingRecentRuns, setLoadingRecentRuns] = useState(true)
     const navigate = useNavigate()
+    const statsPeriod = period === 'all' ? undefined : period
 
     useEffect(() => {
         let active = true
@@ -35,7 +36,7 @@ export default function DashboardPage() {
         setError('')
 
         api
-            .get('/api/runs/stats/', { params: { period } })
+            .get('/api/runs/stats/', statsPeriod ? { params: { period: statsPeriod } } : undefined)
             .then(({ data }) => {
                 if (!active) return
                 setStats(data)
@@ -122,6 +123,7 @@ export default function DashboardPage() {
                         { label: '7D', value: '7d' },
                         { label: '1M', value: '1m' },
                         { label: '3M', value: '3m' },
+                        { label: 'ALL', value: 'all' },
                     ].map((opt) => (
                         <button
                             key={opt.value}
@@ -335,7 +337,7 @@ export default function DashboardPage() {
 }
 
 function buildScoreTrendData(runs, period) {
-    const cutoff = getPeriodCutoff(period)
+    const cutoff = getPeriodCutoff(period, runs)
     const filteredRuns = runs.filter((run) => {
         const createdAt = new Date(run.created_at)
         return Number.isNaN(createdAt.getTime()) ? false : createdAt >= cutoff
@@ -371,9 +373,28 @@ function buildScoreTrendData(runs, period) {
     return series
 }
 
-function getPeriodCutoff(period) {
+function getPeriodCutoff(period, runs = []) {
     const now = new Date()
     const cutoff = new Date(now)
+
+    if (period === 'all') {
+        const earliestRun = runs.reduce((earliest, run) => {
+            const createdAt = new Date(run.created_at)
+            if (Number.isNaN(createdAt.getTime())) return earliest
+            if (!earliest || createdAt < earliest) return createdAt
+            return earliest
+        }, null)
+
+        if (earliestRun) {
+            const normalized = new Date(earliestRun)
+            normalized.setHours(0, 0, 0, 0)
+            return normalized
+        }
+
+        cutoff.setDate(cutoff.getDate() - 6)
+        cutoff.setHours(0, 0, 0, 0)
+        return cutoff
+    }
 
     if (period === '24h') {
         cutoff.setHours(cutoff.getHours() - 24)
