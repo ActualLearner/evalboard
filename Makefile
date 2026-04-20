@@ -1,25 +1,27 @@
-.PHONY: install migrate seed run-backend run-frontend run dev
+.PHONY: install create-venv migrate seed run-backend run-frontend dev setup
+
+create-venv:
+	cd backend && python -m venv venv
 
 install:
-	cd backend && pip install -r requirements.txt
+	cd backend && venv/bin/pip install -r requirements.txt
 	cd frontend && npm install
 
 migrate:
-	cd backend && python manage.py migrate
+	cd backend && venv/bin/python manage.py migrate
 
 seed:
-	cd backend && python manage.py seed
+	cd backend && venv/bin/python manage.py seed
 
 run-backend:
-	cd backend && python manage.py runserver
+	cd backend && venv/bin/python manage.py runserver
 
 run-frontend:
 	cd frontend && npm run dev
 
 dev:
-	make run-backend & make run-frontend
+	make run-backend & \
+	make run-frontend & \
+	wait
 
-setup:
-	make install
-	make migrate
-	make seed
+setup: create-venv install migrate seed
