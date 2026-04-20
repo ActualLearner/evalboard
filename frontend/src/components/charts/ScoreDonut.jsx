@@ -8,7 +8,7 @@ export default function ScoreDonut({ distribution }) {
     const pPartial = total ? (partial / total) * 100 : 0
     const pFailed = total ? (failed / total) * 100 : 0
 
-    const gradient = `conic-gradient(#2abf6f 0 ${pPerfect}%, #fbbf24 ${pPerfect}% ${pPerfect + pPartial}%, #ef4444 ${pPerfect + pPartial}% ${pPerfect + pPartial + pFailed}%)`
+    const gradient = `conic-gradient(#22c55e 0 ${pPerfect}%, #f59e0b ${pPerfect}% ${pPerfect + pPartial}%, #ef4444 ${pPerfect + pPartial}% ${pPerfect + pPartial + pFailed}%)`
 
     return (
         <div className="relative h-56 w-56">
