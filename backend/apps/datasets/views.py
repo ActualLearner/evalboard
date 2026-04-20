@@ -19,17 +19,31 @@ class DatasetListView(APIView):
 
 
 class DatasetDetailView(APIView):
-    def get(self, request, pk):
+    def get_object(self, pk):
         try:
-            dataset = Dataset.objects.get(pk=pk)
+            return Dataset.objects.get(pk=pk)
         except Dataset.DoesNotExist:
+            return None
+
+    def get(self, request, pk):
+        dataset = self.get_object(pk)
+        if not dataset:
             return Response(status=status.HTTP_404_NOT_FOUND)
         return Response(DatasetSerializer(dataset).data)
 
+    def put(self, request, pk):
+        dataset = self.get_object(pk)
+        if not dataset:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = DatasetSerializer(dataset, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     def delete(self, request, pk):
-        try:
-            dataset = Dataset.objects.get(pk=pk)
-        except Dataset.DoesNotExist:
+        dataset = self.get_object(pk)
+        if not dataset:
             return Response(status=status.HTTP_404_NOT_FOUND)
         dataset.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
