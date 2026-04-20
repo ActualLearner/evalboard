@@ -42,7 +42,7 @@ The REST API has seven endpoints. The stats endpoint alone performs six ORM aggr
 
 ```
 evalboard/
-├── Makefile                  # Dev commands: setup, migrate, seed, run
+├── Makefile
 ├── README.md
 ├── .gitignore
 │
@@ -50,87 +50,34 @@ evalboard/
 │   ├── manage.py
 │   ├── requirements.txt
 │   ├── .env.example
-│   │
-│   ├── config/
-│   │   ├── settings.py       # Django settings, env-driven config
-│   │   ├── urls.py           # Root URL routing
-│   │   ├── wsgi.py
-│   │   └── asgi.py
-│   │
+│   ├── config/                          # Django settings, URLs, WSGI
 │   └── apps/
-│       ├── core/
-│       │   ├── llm_client.py         # LiteLLM wrapper, provider abstraction
-│       │   ├── prompt_renderer.py    # {{input}} template substitution
-│       │   └── scoring.py            # Normalized exact match scoring
-│       │
-│       ├── datasets/
-│       │   ├── models.py             # Dataset, DatasetItem
-│       │   ├── serializers.py
-│       │   ├── views.py              # List, create, delete datasets
-│       │   └── urls.py
-│       │
-│       ├── prompts/
-│       │   ├── models.py             # Prompt (name + template)
-│       │   ├── serializers.py
-│       │   ├── views.py              # List, create, delete prompts
-│       │   └── urls.py
-│       │
-│       └── runs/
-│           ├── models.py             # Run, RunItemResult
-│           ├── serializers.py
-│           ├── views.py              # Run creation, retrieval, stats
-│           ├── services.py           # Eval execution engine
-│           ├── stats.py              # Dashboard aggregations
-│           ├── urls.py
-│           └── management/
-│               └── commands/
-│                   └── seed.py       # Mock data seeder (40 runs, 4 datasets)
+│       ├── core/                        # llm_client.py, prompt_renderer.py, scoring.py
+│       ├── datasets/                    # Dataset + DatasetItem models, API
+│       ├── prompts/                     # Prompt model, API
+│       └── runs/                        # Run + RunItemResult models, eval engine, stats, seed command
 │
 ├── frontend/
-│   ├── index.html
-│   ├── vite.config.js
-│   ├── package.json
-│   │
 │   └── src/
-│       ├── main.jsx
-│       ├── App.jsx                   # React Router setup
-│       ├── index.css                 # Tailwind + global styles
-│       │
-│       ├── api/
-│       │   └── client.js             # All axios calls in one place
-│       │
-│       ├── constants/
-│       │   └── models.js             # Provider → model list
-│       │
-│       ├── hooks/
-│       │   └── useSettings.js        # BYOK keys from localStorage
-│       │
+│       ├── api/                         # client.js — all axios calls
+│       ├── assets/                      # Static assets
+│       ├── constants/                   # providerModels.js, navItems.js
+│       ├── utils/                       # csv.js, format.js
 │       ├── components/
-│       │   ├── layout/
-│       │   │   ├── Sidebar.jsx
-│       │   │   └── Layout.jsx
-│       │   ├── ui/
-│       │   │   ├── StatCard.jsx
-│       │   │   ├── ScoreBadge.jsx
-│       │   │   └── LoadingSpinner.jsx
-│       │   └── charts/
-│       │       ├── RunsLineChart.jsx
-│       │       ├── ScoreDonut.jsx
-│       │       ├── TopModelsBar.jsx
-│       │       └── LatencyChart.jsx
-│       │
-│       └── pages/
-│           ├── Landing.jsx
-│           ├── Dashboard.jsx
-│           ├── Runs.jsx
-│           ├── RunDetail.jsx
-│           ├── NewRun.jsx
-│           ├── Datasets.jsx
-│           ├── NewDataset.jsx
-│           └── Prompts.jsx
+│       │   ├── charts/                  # AvgScoreBars, LatencyChart, ScoreDonut, TwoLineChart
+│       │   ├── icons/                   # AppIcons
+│       │   ├── layout/                  # AppLayout
+│       │   └── ui/                      # Card, ScoreBadge, StatCard, ScrollableSelect, SummaryPill, Legend, InlineError
+│       └── pages/                       # DashboardPage, DatasetsPage, DocsPage, NewDatasetPage, NewRunPage, PromptsPage, RunDetailPage, RunsPage
 │
 └── docs/
-    └── backend.md            # Full API reference with endpoints, request/response shapes
+    ├── architecture.md
+    ├── requirements.md
+    └── components/
+        ├── backend.md                   # Full API reference
+        ├── frontend.md
+        ├── scoring.md
+        └── dev-workflow.md
 ```
 
 ---
