@@ -6,6 +6,7 @@ PROVIDER_ENV_KEYS = {
     "groq": "GROQ_API_KEY",
     "gemini": "GEMINI_API_KEY",
     "openai": "OPENAI_API_KEY",
+    "deepseek": "DEEPSEEK_API_KEY",
 }
 
 
