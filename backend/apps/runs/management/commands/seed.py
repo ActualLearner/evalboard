@@ -62,7 +62,9 @@ class Command(BaseCommand):
             dataset, _ = Dataset.objects.get_or_create(name=d["name"])
             for input_text, ideal in d["items"]:
                 DatasetItem.objects.get_or_create(
-                    dataset=dataset, input=input_text, defaults={"ideal_output": ideal}
+                    dataset=dataset,
+                    input=input_text,
+                    defaults={"ideal_output": ideal},
                 )
             datasets.append(dataset)
             self.stdout.write(f"  Dataset: {dataset.name}")
@@ -84,13 +86,46 @@ class Command(BaseCommand):
         ]
 
         prompt_templates = [t for _, t in prompts_data]
+        partial_outputs = {
+            "Pacific Ocean": ["The Pacific is the largest", "It is the Pacific"],
+            "Carbon dioxide": ["Plants absorb carbon", "CO2 and carbon"],
+            "George Washington": ["Washington was the first", "It was George"],
+            "Alexander Graham Bell": ["Bell invented it", "Alexander Bell"],
+            "299792458 m/s": ["About 300000 km/s", "299792 meters per second"],
+        }
 
-        for i in range(40):
+        def get_output_and_score(ideal, model):
+            if model in (
+                "llama-3.3-70b-versatile",
+                "claude-haiku-4-5-20251001",
+                "gemini-2.5-flash",
+            ):
+                outcome = random.choices(
+                    ["perfect", "partial", "failed"], weights=[75, 15, 10]
+                )[0]
+            else:
+                outcome = random.choices(
+                    ["perfect", "partial", "failed"], weights=[60, 20, 20]
+                )[0]
+
+            if outcome == "perfect":
+                return ideal, 1.0
+            elif outcome == "partial" and ideal in partial_outputs:
+                output = random.choice(partial_outputs[ideal])
+                ideal_words = set(ideal.lower().split())
+                output_words = set(output.lower().split())
+                matched = ideal_words & output_words
+                score = (
+                    round(len(matched) / len(ideal_words), 4) if ideal_words else 0.0
+                )
+                return output, score
+            else:
+                return "I do not know", 0.0
+
+        def make_run(created_at):
             dataset = random.choice(datasets)
             provider, model = random.choice(providers_models)
             template = random.choice(prompt_templates)
-            days_ago = random.randint(0, 29)
-            created = timezone.now() - timedelta(days=days_ago)
 
             run = Run.objects.create(
                 dataset=dataset,
@@ -99,7 +134,6 @@ class Command(BaseCommand):
                 model=model,
                 temperature=round(random.uniform(0.0, 1.0), 1),
                 status="completed",
-                created_at=created,
             )
 
             items = list(dataset.items.all())
@@ -107,31 +141,67 @@ class Command(BaseCommand):
             total_latency = 0
 
             for item in items:
-                if model in (
-                    "llama-3.3-70b-versatile",
-                    "claude-haiku-4-5-20251001",
-                    "gemini-2.5-flash",
-                ):
-                    score = random.choices([1.0, 0.0], weights=[85, 15])[0]
-                else:
-                    score = random.choices([1.0, 0.0], weights=[70, 30])[0]
-
+                output, score = get_output_and_score(item.ideal_output, model)
                 item_latency = round(random.uniform(200, 1800), 2)
                 total_latency += item_latency
                 scores.append(score)
 
-                RunItemResult.objects.create(
+                run_item = RunItemResult.objects.create(
                     run=run,
                     dataset_item=item,
-                    model_output=item.ideal_output if score == 1.0 else "I do not know",
+                    model_output=output,
                     score=score,
                     latency_ms=item_latency,
                 )
 
+                if hasattr(run_item, "created_at"):
+                    RunItemResult.objects.filter(pk=run_item.pk).update(
+                        created_at=created_at
+                    )
+
             run.avg_score = round(sum(scores) / len(scores), 4)
             run.total_items = len(scores)
-            run.failed_items = scores.count(0.0)
+            run.failed_items = sum(1 for s in scores if s == 0.0)
             run.latency_ms = round(total_latency, 2)
             run.save()
+            Run.objects.filter(pk=run.pk).update(created_at=created_at)
 
-        self.stdout.write(self.style.SUCCESS("Done. 40 runs seeded across 30 days."))
+        now = timezone.now()
+        self.stdout.write("  Creating 20 recent runs (random 9h window today)...")
+
+        window_start_hours_ago = random.uniform(9, 24)
+        window_start = now - timedelta(hours=window_start_hours_ago)
+
+        recent_times = [
+            window_start + timedelta(seconds=random.uniform(0, 9 * 3600))
+            for _ in range(20)
+        ]
+        recent_times.sort()
+
+        for dt in recent_times:
+            make_run(dt)
+
+        self.stdout.write("  Creating 60 historical runs (over the last 90 days)...")
+
+        historical_start = now - timedelta(days=90)
+        historical_end = now - timedelta(days=1)
+
+        history_duration_seconds = int(
+            (historical_end - historical_start).total_seconds()
+        )
+
+        historical_times = [
+            historical_start
+            + timedelta(seconds=random.randint(0, history_duration_seconds))
+            for _ in range(60)
+        ]
+        historical_times.sort()
+
+        for dt in historical_times:
+            make_run(dt)
+
+        self.stdout.write(
+            self.style.SUCCESS(
+                "Done. 80 runs seeded with dynamic randomized timestamps."
+            )
+        )
