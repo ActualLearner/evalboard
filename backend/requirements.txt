@@ -1,5 +1,5 @@
-django
-djangorestframework
-django-cors-headers
-litellm
-python-dotenv
+django==6.0.4
+djangorestframework==3.17.1
+django-cors-headers==4.9.0
+litellm==1.83.10
+python-dotenv==1.0.1

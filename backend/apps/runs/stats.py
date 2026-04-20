@@ -27,7 +27,9 @@ def get_dashboard_stats(period="7d"):
 
     top_models = list(
         runs.values("model", "provider")
-        .annotate(avg=Avg("avg_score"), run_count=Count("id"))
+        .annotate(
+            avg=Avg("avg_score"), run_count=Count("id"), avg_latency=Avg("latency_ms")
+        )
         .order_by("-avg")[:6]
     )
 
