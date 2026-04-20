@@ -215,7 +215,99 @@
 		@apply border-border outline-ring/50;
 		font-family: 'Lexend', sans-serif;
 	}
+	html,
+	body,
+	#root {
+		min-height: 100%;
+	}
 	body {
 		@apply bg-background text-foreground;
+		background-image:
+			radial-gradient(circle at 12% 10%, oklch(0.95 0.012 250 / 0.92), transparent 42%),
+			radial-gradient(circle at 84% 20%, oklch(0.93 0.014 190 / 0.88), transparent 44%),
+			linear-gradient(180deg, oklch(0.968 0.003 250), oklch(0.948 0.004 245));
+	}
+
+	a,
+	button,
+	input,
+	select,
+	textarea {
+		transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+		transition-duration: 220ms;
+		transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+	}
+
+	button:active {
+		transform: scale(0.985);
+	}
+
+	:focus-visible {
+		outline: 2px solid oklch(0.62 0.07 252);
+		outline-offset: 2px;
+	}
+
+	::selection {
+		background: oklch(0.9 0.035 245);
+		color: oklch(0.26 0.02 252);
+	}
+}
+
+@layer components {
+	.app-backdrop {
+		background: linear-gradient(160deg, oklch(0.932 0.006 238), oklch(0.905 0.008 242));
+	}
+
+	.app-shell {
+		border-color: oklch(0.84 0.008 244);
+		background: linear-gradient(165deg, oklch(0.96 0.004 245), oklch(0.945 0.004 240));
+		box-shadow:
+			0 1px 0 oklch(1 0 0 / 0.76) inset,
+			0 16px 36px oklch(0.32 0.014 250 / 0.14);
+	}
+
+	.app-sidebar {
+		background: linear-gradient(180deg, oklch(0.972 0.003 240), oklch(0.955 0.003 242));
+		border-right-color: oklch(0.86 0.007 242);
+	}
+
+	.app-main {
+		background: linear-gradient(180deg, oklch(0.967 0.004 247), oklch(0.952 0.004 246));
+	}
+
+	.app-nav-item {
+		transition-duration: 180ms;
+		transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+	}
+
+	.app-nav-item:hover {
+		transform: translateX(2px);
+	}
+
+	.app-card {
+		border-color: oklch(0.85 0.008 242);
+		background: linear-gradient(180deg, oklch(0.986 0.002 248), oklch(0.972 0.003 246));
+		box-shadow: 0 2px 10px oklch(0.36 0.012 250 / 0.08);
+	}
+
+	.app-card:hover {
+		box-shadow: 0 8px 22px oklch(0.36 0.012 250 / 0.14);
+	}
+
+	.app-inline-error {
+		border-color: oklch(0.84 0.06 22);
+		background: oklch(0.95 0.02 22);
+		color: oklch(0.4 0.08 20);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.001ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.001ms !important;
+		scroll-behavior: auto !important;
 	}
 }
