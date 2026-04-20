@@ -20,7 +20,7 @@ import Legend from '../components/ui/Legend'
 import ScoreDonut from '../components/charts/ScoreDonut'
 
 export default function DashboardPage() {
-    const [period, setPeriod] = useState('7d')
+    const [period, setPeriod] = useState('24h')
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
     const [stats, setStats] = useState(null)
@@ -456,30 +456,6 @@ function getTrendConfig(period, cutoff, runs) {
         return { start, end: normalizedNow, stepMs: 60 * 60 * 1000 }
     }
 
-    if (period === '7d') {
-        const start = new Date(cutoff)
-        start.setHours(0, 0, 0, 0)
-        const end = new Date(now)
-        end.setHours(0, 0, 0, 0)
-        return { start, end, stepMs: 24 * 60 * 60 * 1000 }
-    }
-
-    if (period === '1m') {
-        const start = new Date(cutoff)
-        start.setHours(0, 0, 0, 0)
-        const end = new Date(now)
-        end.setHours(0, 0, 0, 0)
-        return { start, end, stepMs: 24 * 60 * 60 * 1000 }
-    }
-
-    if (period === '3m') {
-        const start = new Date(cutoff)
-        start.setHours(0, 0, 0, 0)
-        const end = new Date(now)
-        end.setHours(0, 0, 0, 0)
-        return { start, end, stepMs: 7 * 24 * 60 * 60 * 1000 }
-    }
-
     const earliestRun = runs.reduce((earliest, run) => {
         const createdAt = new Date(run.created_at)
         if (Number.isNaN(createdAt.getTime())) return earliest
@@ -487,27 +463,24 @@ function getTrendConfig(period, cutoff, runs) {
         return earliest
     }, null)
 
-    const start = new Date(earliestRun || cutoff)
-    start.setHours(0, 0, 0, 0)
-    const end = new Date(now)
-    end.setHours(0, 0, 0, 0)
-    return { start, end, stepMs: 7 * 24 * 60 * 60 * 1000 }
+    const start = period === 'all' ? alignToDay(earliestRun || cutoff) : alignToDay(cutoff)
+    const end = alignToDay(now)
+    const spanDays = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / DAY_MS) + 1)
+    const stepMs = chooseTrendStepMs(period, spanDays)
+
+    return { start, end, stepMs }
 }
 
 function getBucketStart(date, config) {
     const bucket = new Date(date)
-    if (config.stepMs === 60 * 60 * 1000) {
+    if (config.stepMs === HOUR_MS) {
         bucket.setMinutes(0, 0, 0)
         return bucket
     }
 
-    bucket.setHours(0, 0, 0, 0)
-    if (config.stepMs === 7 * 24 * 60 * 60 * 1000) {
-        const day = bucket.getDay()
-        const diff = (day + 6) % 7
-        bucket.setDate(bucket.getDate() - diff)
-    }
-    return bucket
+    const offset = bucket.getTime() - config.start.getTime()
+    const stepCount = Math.floor(offset / config.stepMs)
+    return new Date(config.start.getTime() + stepCount * config.stepMs)
 }
 
 function addTimeStep(date, stepMs) {
@@ -515,16 +488,16 @@ function addTimeStep(date, stepMs) {
 }
 
 function formatTrendLabel(date, period, stepMs) {
-    if (stepMs === 60 * 60 * 1000) {
+    if (stepMs === HOUR_MS) {
         return date.toLocaleTimeString(undefined, { hour: 'numeric' })
     }
 
-    if (stepMs === 7 * 24 * 60 * 60 * 1000) {
+    if (stepMs >= 7 * DAY_MS) {
         return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
     }
 
     if (period === 'all') {
-        return date.toLocaleDateString(undefined, { month: 'short', year: '2-digit' })
+        return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
     }
 
     return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
@@ -580,3 +553,21 @@ function getPeriodCutoff(period, runs = []) {
     cutoff.setHours(0, 0, 0, 0)
     return cutoff
 }
+
+function alignToDay(date) {
+    const aligned = new Date(date)
+    aligned.setHours(0, 0, 0, 0)
+    return aligned
+}
+
+function chooseTrendStepMs(period, spanDays) {
+    if (period === '24h') return HOUR_MS
+    if (spanDays <= 31) return DAY_MS
+    if (spanDays <= 92) return 3 * DAY_MS
+    if (spanDays <= 180) return 7 * DAY_MS
+    if (spanDays <= 365) return 14 * DAY_MS
+    return 30 * DAY_MS
+}
+
+const HOUR_MS = 60 * 60 * 1000
+const DAY_MS = 24 * 60 * 60 * 1000
