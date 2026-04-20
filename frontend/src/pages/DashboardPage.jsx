@@ -24,6 +24,7 @@ export default function DashboardPage() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
     const [stats, setStats] = useState(null)
+    const [allRuns, setAllRuns] = useState([])
     const [recentRuns, setRecentRuns] = useState([])
     const [loadingRecentRuns, setLoadingRecentRuns] = useState(true)
     const navigate = useNavigate()
@@ -60,7 +61,9 @@ export default function DashboardPage() {
             .get('/api/runs/')
             .then(({ data }) => {
                 if (!active) return
-                setRecentRuns((data || []).slice(0, 5))
+                const runs = data || []
+                setAllRuns(runs)
+                setRecentRuns(runs.slice(0, 5))
             })
             .catch((err) => {
                 if (!active) return
@@ -95,10 +98,7 @@ export default function DashboardPage() {
             score: Number(m.avg || 0),
         }))
 
-    const scoreTrendData = (safeStats.runs_over_time || []).map((r) => ({
-        date: r.created_at__date,
-        score: Number(r.avg_score || 0),
-    }))
+    const scoreTrendData = buildScoreTrendData(allRuns, period)
 
     const latencyByModelData = [...(safeStats.top_models || [])]
         .sort((a, b) => (a.avg_latency || 0) - (b.avg_latency || 0))
@@ -221,7 +221,7 @@ export default function DashboardPage() {
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={scoreTrendData} margin={{ top: 4, right: 8, bottom: 4, left: 0 }}>
                                 <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" />
-                                <XAxis dataKey="date" tick={{ fill: '#64748b', fontSize: 12 }} />
+                                <XAxis dataKey="date" tick={{ fill: '#64748b', fontSize: 12 }} minTickGap={18} />
                                 <YAxis domain={[0, 1]} tick={{ fill: '#64748b', fontSize: 12 }} />
                                 <Tooltip formatter={(value) => Number(value).toFixed(3)} />
                                 <Area
@@ -332,4 +332,73 @@ export default function DashboardPage() {
             </section>
         </div>
     )
+}
+
+function buildScoreTrendData(runs, period) {
+    const cutoff = getPeriodCutoff(period)
+    const filteredRuns = runs.filter((run) => {
+        const createdAt = new Date(run.created_at)
+        return Number.isNaN(createdAt.getTime()) ? false : createdAt >= cutoff
+    })
+
+    const buckets = new Map()
+    for (const run of filteredRuns) {
+        const createdAt = new Date(run.created_at)
+        if (Number.isNaN(createdAt.getTime())) continue
+
+        const key = createdAt.toISOString().slice(0, 10)
+        const bucket = buckets.get(key) || { total: 0, count: 0 }
+        bucket.total += Number(run.avg_score || 0)
+        bucket.count += 1
+        buckets.set(key, bucket)
+    }
+
+    const startDate = new Date(cutoff)
+    startDate.setHours(0, 0, 0, 0)
+    const endDate = new Date()
+    endDate.setHours(0, 0, 0, 0)
+
+    const series = []
+    for (let cursor = new Date(startDate); cursor <= endDate; cursor.setDate(cursor.getDate() + 1)) {
+        const key = cursor.toISOString().slice(0, 10)
+        const bucket = buckets.get(key)
+        series.push({
+            date: cursor.toLocaleDateString(undefined, { month: 'short', day: '2-digit' }),
+            score: bucket ? bucket.total / bucket.count : 0,
+        })
+    }
+
+    return series
+}
+
+function getPeriodCutoff(period) {
+    const now = new Date()
+    const cutoff = new Date(now)
+
+    if (period === '24h') {
+        cutoff.setHours(cutoff.getHours() - 24)
+        return cutoff
+    }
+
+    if (period === '7d') {
+        cutoff.setDate(cutoff.getDate() - 6)
+        cutoff.setHours(0, 0, 0, 0)
+        return cutoff
+    }
+
+    if (period === '1m') {
+        cutoff.setDate(cutoff.getDate() - 29)
+        cutoff.setHours(0, 0, 0, 0)
+        return cutoff
+    }
+
+    if (period === '3m') {
+        cutoff.setDate(cutoff.getDate() - 89)
+        cutoff.setHours(0, 0, 0, 0)
+        return cutoff
+    }
+
+    cutoff.setDate(cutoff.getDate() - 6)
+    cutoff.setHours(0, 0, 0, 0)
+    return cutoff
 }
