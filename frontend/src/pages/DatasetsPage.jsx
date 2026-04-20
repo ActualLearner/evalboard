@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import api from '../api/client'
 import { formatDateTime, getErrorMessage } from '../utils/format'
 import InlineError from '../components/ui/InlineError'
@@ -10,6 +10,7 @@ export default function DatasetsPage() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
     const [searchParams] = useSearchParams()
+    const navigate = useNavigate()
     const highlightId = searchParams.get('highlight')
 
     useEffect(() => {
@@ -70,12 +71,20 @@ export default function DatasetsPage() {
                             <h2 className="text-[20px] font-light text-slate-800">{d.name}</h2>
                             <p className="mt-2 text-[16px] text-slate-500">Rows: {d.items?.length || 0}</p>
                             <p className="mt-1 text-[16px] text-slate-500">Created: {formatDateTime(d.created_at)}</p>
-                            <button
-                                className="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-100"
-                                onClick={() => deleteDataset(d.id)}
-                            >
-                                Delete
-                            </button>
+                            <div className="mt-4 flex gap-2">
+                                <button
+                                    className="rounded-lg border border-[#d3dae3] bg-[#fbfcfd] px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-[#eef2f7]"
+                                    onClick={() => navigate(`/datasets/${d.id}`)}
+                                >
+                                    Edit
+                                </button>
+                                <button
+                                    className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-100"
+                                    onClick={() => deleteDataset(d.id)}
+                                >
+                                    Delete
+                                </button>
+                            </div>
                         </Card>
                     ))}
                     {datasets.length === 0 && (

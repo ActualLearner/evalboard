@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-    Area,
-    AreaChart,
     Bar,
     BarChart,
     CartesianGrid,
+    Line,
+    LineChart,
     ResponsiveContainer,
     Tooltip,
     XAxis,
@@ -64,7 +64,6 @@ export default function DashboardPage() {
                 if (!active) return
                 const runs = data || []
                 setAllRuns(runs)
-                setRecentRuns(runs.slice(0, 5))
             })
             .catch((err) => {
                 if (!active) return
@@ -78,6 +77,10 @@ export default function DashboardPage() {
             active = false
         }
     }, [])
+
+    useEffect(() => {
+        setRecentRuns(getRecentRunsByPeriod(allRuns, period))
+    }, [allRuns, period])
 
     const safeStats = stats ?? {
         summary: { total_runs: 0, overall_avg_score: 0, total_items_evaluated: 0 },
@@ -99,7 +102,9 @@ export default function DashboardPage() {
             score: Number(m.avg || 0),
         }))
 
-    const scoreTrendData = buildScoreTrendData(allRuns, period)
+    const scoreTrend = buildProviderTrendSeries(allRuns, period)
+    const scoreTrendProviders = scoreTrend.providers
+    const scoreTrendData = scoreTrend.points
 
     const latencyByModelData = [...(safeStats.top_models || [])]
         .sort((a, b) => (a.avg_latency || 0) - (b.avg_latency || 0))
@@ -219,23 +224,44 @@ export default function DashboardPage() {
                     <div className="flex items-start justify-between">
                         <h2 className="text-[18px] font-light leading-none text-slate-500">Score Trend Over Time</h2>
                     </div>
+                    {scoreTrendProviders.length > 0 ? (
+                        <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-500">
+                            {scoreTrendProviders.map((provider, index) => (
+                                <span key={provider} className="inline-flex items-center gap-1.5">
+                                    <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: trendColors[index % trendColors.length] }} />
+                                    {formatProviderLabel(provider)}
+                                </span>
+                            ))}
+                        </div>
+                    ) : null}
                     <div className="mt-3 h-64 w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={scoreTrendData} margin={{ top: 4, right: 8, bottom: 4, left: 0 }}>
-                                <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" />
-                                <XAxis dataKey="date" tick={{ fill: '#64748b', fontSize: 12 }} minTickGap={18} />
-                                <YAxis domain={[0, 1]} tick={{ fill: '#64748b', fontSize: 12 }} />
-                                <Tooltip formatter={(value) => Number(value).toFixed(3)} />
-                                <Area
-                                    type="monotone"
-                                    dataKey="score"
-                                    stroke="#22c55e"
-                                    fill="#22c55e"
-                                    fillOpacity={0.15}
-                                    strokeWidth={2.5}
-                                />
-                            </AreaChart>
-                        </ResponsiveContainer>
+                        {scoreTrendData.length > 0 && scoreTrendProviders.length > 0 ? (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={scoreTrendData} margin={{ top: 4, right: 8, bottom: 4, left: 0 }}>
+                                    <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" />
+                                    <XAxis dataKey="label" tick={{ fill: '#64748b', fontSize: 12 }} minTickGap={18} />
+                                    <YAxis domain={[0, 1]} tick={{ fill: '#64748b', fontSize: 12 }} />
+                                    <Tooltip formatter={(value, name) => [Number(value).toFixed(3), name]} />
+                                    {scoreTrendProviders.map((provider, index) => (
+                                        <Line
+                                            key={provider}
+                                            name={formatProviderLabel(provider)}
+                                            type="monotone"
+                                            dataKey={provider}
+                                            stroke={trendColors[index % trendColors.length]}
+                                            strokeWidth={3}
+                                            dot={false}
+                                            activeDot={{ r: 4 }}
+                                            connectNulls
+                                        />
+                                    ))}
+                                </LineChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-[#d8dee6] bg-[#fbfcfd] text-sm text-slate-500">
+                                No trend data for the selected period.
+                            </div>
+                        )}
                     </div>
                 </Card>
 
@@ -336,41 +362,172 @@ export default function DashboardPage() {
     )
 }
 
-function buildScoreTrendData(runs, period) {
+function buildProviderTrendSeries(runs, period) {
     const cutoff = getPeriodCutoff(period, runs)
     const filteredRuns = runs.filter((run) => {
         const createdAt = new Date(run.created_at)
         return Number.isNaN(createdAt.getTime()) ? false : createdAt >= cutoff
     })
 
+    const providerKeys = []
+    const providerSet = new Set()
+    for (const run of filteredRuns) {
+        const key = getProviderKey(run)
+        if (!providerSet.has(key)) {
+            providerSet.add(key)
+            providerKeys.push(key)
+        }
+    }
+
+    const config = getTrendConfig(period, cutoff, filteredRuns)
     const buckets = new Map()
     for (const run of filteredRuns) {
         const createdAt = new Date(run.created_at)
         if (Number.isNaN(createdAt.getTime())) continue
 
-        const key = createdAt.toISOString().slice(0, 10)
-        const bucket = buckets.get(key) || { total: 0, count: 0 }
-        bucket.total += Number(run.avg_score || 0)
-        bucket.count += 1
+        const bucketStart = getBucketStart(createdAt, config)
+        const key = bucketStart.getTime()
+        const providerKey = getProviderKey(run)
+        const bucket = buckets.get(key) || new Map()
+        if (!bucket.has(providerKey)) {
+            bucket.set(providerKey, { total: 0, count: 0 })
+        }
+        const aggregate = bucket.get(providerKey)
+        aggregate.total += Number(run.avg_score || 0)
+        aggregate.count += 1
         buckets.set(key, bucket)
     }
 
-    const startDate = new Date(cutoff)
-    startDate.setHours(0, 0, 0, 0)
-    const endDate = new Date()
-    endDate.setHours(0, 0, 0, 0)
+    const startDate = new Date(config.start)
+    const endDate = new Date(config.end)
 
     const series = []
-    for (let cursor = new Date(startDate); cursor <= endDate; cursor.setDate(cursor.getDate() + 1)) {
-        const key = cursor.toISOString().slice(0, 10)
-        const bucket = buckets.get(key)
-        series.push({
-            date: cursor.toLocaleDateString(undefined, { month: 'short', day: '2-digit' }),
-            score: bucket ? bucket.total / bucket.count : 0,
-        })
+    for (let cursor = new Date(startDate); cursor <= endDate; cursor = addTimeStep(cursor, config.stepMs)) {
+        const bucket = buckets.get(cursor.getTime())
+        const point = {
+            label: formatTrendLabel(cursor, period, config.stepMs),
+        }
+
+        for (const providerKey of providerKeys) {
+            const aggregate = bucket?.get(providerKey)
+            point[providerKey] = aggregate ? aggregate.total / aggregate.count : null
+        }
+
+        series.push(point)
     }
 
-    return series
+    return {
+        providers: providerKeys,
+        points: series,
+    }
+}
+
+function getRecentRunsByPeriod(runs, period) {
+    const cutoff = getPeriodCutoff(period, runs)
+    return [...runs]
+        .filter((run) => {
+            const createdAt = new Date(run.created_at)
+            return Number.isNaN(createdAt.getTime()) ? false : createdAt >= cutoff
+        })
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .slice(0, 5)
+}
+
+function getProviderKey(run) {
+    return run.provider || 'unknown'
+}
+
+function formatProviderLabel(provider) {
+    if (!provider) return 'Unknown'
+    return provider.charAt(0).toUpperCase() + provider.slice(1)
+}
+
+const trendColors = ['#22c55e', '#6366f1', '#f59e0b', '#ef4444', '#0ea5e9', '#a855f7', '#14b8a6']
+
+function getTrendConfig(period, cutoff, runs) {
+    const now = new Date()
+    const normalizedNow = new Date(now)
+    normalizedNow.setMinutes(0, 0, 0)
+
+    if (period === '24h') {
+        const start = new Date(now)
+        start.setHours(start.getHours() - 23)
+        start.setMinutes(0, 0, 0)
+        return { start, end: normalizedNow, stepMs: 60 * 60 * 1000 }
+    }
+
+    if (period === '7d') {
+        const start = new Date(cutoff)
+        start.setHours(0, 0, 0, 0)
+        const end = new Date(now)
+        end.setHours(0, 0, 0, 0)
+        return { start, end, stepMs: 24 * 60 * 60 * 1000 }
+    }
+
+    if (period === '1m') {
+        const start = new Date(cutoff)
+        start.setHours(0, 0, 0, 0)
+        const end = new Date(now)
+        end.setHours(0, 0, 0, 0)
+        return { start, end, stepMs: 24 * 60 * 60 * 1000 }
+    }
+
+    if (period === '3m') {
+        const start = new Date(cutoff)
+        start.setHours(0, 0, 0, 0)
+        const end = new Date(now)
+        end.setHours(0, 0, 0, 0)
+        return { start, end, stepMs: 7 * 24 * 60 * 60 * 1000 }
+    }
+
+    const earliestRun = runs.reduce((earliest, run) => {
+        const createdAt = new Date(run.created_at)
+        if (Number.isNaN(createdAt.getTime())) return earliest
+        if (!earliest || createdAt < earliest) return createdAt
+        return earliest
+    }, null)
+
+    const start = new Date(earliestRun || cutoff)
+    start.setHours(0, 0, 0, 0)
+    const end = new Date(now)
+    end.setHours(0, 0, 0, 0)
+    return { start, end, stepMs: 7 * 24 * 60 * 60 * 1000 }
+}
+
+function getBucketStart(date, config) {
+    const bucket = new Date(date)
+    if (config.stepMs === 60 * 60 * 1000) {
+        bucket.setMinutes(0, 0, 0)
+        return bucket
+    }
+
+    bucket.setHours(0, 0, 0, 0)
+    if (config.stepMs === 7 * 24 * 60 * 60 * 1000) {
+        const day = bucket.getDay()
+        const diff = (day + 6) % 7
+        bucket.setDate(bucket.getDate() - diff)
+    }
+    return bucket
+}
+
+function addTimeStep(date, stepMs) {
+    return new Date(date.getTime() + stepMs)
+}
+
+function formatTrendLabel(date, period, stepMs) {
+    if (stepMs === 60 * 60 * 1000) {
+        return date.toLocaleTimeString(undefined, { hour: 'numeric' })
+    }
+
+    if (stepMs === 7 * 24 * 60 * 60 * 1000) {
+        return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+    }
+
+    if (period === 'all') {
+        return date.toLocaleDateString(undefined, { month: 'short', year: '2-digit' })
+    }
+
+    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
 }
 
 function getPeriodCutoff(period, runs = []) {

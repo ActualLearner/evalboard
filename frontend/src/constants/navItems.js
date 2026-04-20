@@ -1,4 +1,4 @@
-import { DatabaseIcon, FileIcon, HomeIcon, ListIcon, RocketPlayIcon } from '../components/icons/AppIcons'
+import { BookIcon, DatabaseIcon, FileIcon, HomeIcon, ListIcon, RocketPlayIcon } from '../components/icons/AppIcons'
 
 export const navItems = [
   { label: 'Dashboard', path: '/dashboard', icon: HomeIcon, end: true },
@@ -6,4 +6,5 @@ export const navItems = [
   { label: 'Datasets', path: '/datasets', icon: DatabaseIcon, end: false },
   { label: 'Prompts', path: '/prompts', icon: FileIcon, end: true },
   { label: 'New Run', path: '/runs/new', icon: RocketPlayIcon, end: true },
+  { label: 'Documentation', path: '/docs', icon: BookIcon, end: true },
 ]

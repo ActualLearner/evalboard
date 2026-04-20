@@ -1,12 +1,13 @@
-import { Link, NavLink, Navigate, Route, Routes } from 'react-router-dom'
+import { NavLink, Navigate, Route, Routes } from 'react-router-dom'
 import { navItems } from '../../constants/navItems'
-import { BookIcon, MenuIcon, MoonIcon, RocketIcon } from '../icons/AppIcons'
+import { MenuIcon, MoonIcon, RocketIcon } from '../icons/AppIcons'
 import DashboardPage from '../../pages/DashboardPage'
 import RunsPage from '../../pages/RunsPage'
 import NewRunPage from '../../pages/NewRunPage'
 import RunDetailPage from '../../pages/RunDetailPage'
 import DatasetsPage from '../../pages/DatasetsPage'
 import NewDatasetPage from '../../pages/NewDatasetPage'
+import DatasetEditPage from '../../pages/DatasetEditPage'
 import PromptsPage from '../../pages/PromptsPage'
 import DocsPage from '../../pages/DocsPage'
 import { useState } from 'react'
@@ -84,15 +85,7 @@ export default function AppLayout() {
                             ))}
                         </nav>
 
-                        <div className="mt-auto space-y-1 text-[#8f96a3]">
-                            <Link
-                                to="/docs"
-                                className="app-nav-item flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-base hover:bg-[#eceff3] hover:text-[#697280]"
-                            >
-                                <BookIcon />
-                                View Documentation
-                            </Link>
-                        </div>
+                        <div className="mt-auto" />
                     </aside>
 
                     <main className="app-main w-full flex-1 overflow-x-hidden overflow-y-auto p-4 pt-16 text-base sm:p-5 sm:pt-20 lg:pt-5">
@@ -104,6 +97,7 @@ export default function AppLayout() {
                             <Route path="/runs/:id" element={<RunDetailPage />} />
                             <Route path="/datasets" element={<DatasetsPage />} />
                             <Route path="/datasets/new" element={<NewDatasetPage />} />
+                            <Route path="/datasets/:id" element={<DatasetEditPage />} />
                             <Route path="/prompts" element={<PromptsPage />} />
                             <Route path="/docs" element={<DocsPage />} />
                             <Route path="*" element={<Navigate to="/dashboard" replace />} />
