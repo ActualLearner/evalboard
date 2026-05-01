@@ -6,7 +6,7 @@ export default function DocsPage() {
             <h1 className="text-4xl font-semibold tracking-tight text-slate-900">EvalBoard Documentation</h1>
 
             <Card>
-                <h2 className="text-lg font-semibold text-slate-800">What is EvalBoard?</h2>
+                <h2 className="text-lg font-semibold text-slate-600">What is EvalBoard?</h2>
                 <p className="mt-3 text-[16px] leading-relaxed text-slate-600">
                     EvalBoard is a <strong>single-turn LLM evaluation platform</strong>. You define a dataset of
                     <span className="font-medium"> input </span>
@@ -22,7 +22,7 @@ export default function DocsPage() {
             </Card>
 
             <Card>
-                <h2 className="text-lg font-semibold text-slate-800">How It Works</h2>
+                <h2 className="text-lg font-semibold text-slate-600">How It Works</h2>
                 <ol className="mt-3 list-decimal space-y-2 pl-5 text-[16px] text-slate-600">
                     <li>Create a dataset of <span className="font-medium">input</span> and <span className="font-medium">ideal_output</span> rows. Import CSV or type directly.</li>
                     <li>Write a prompt and use <span className="font-medium">{'{{input}}'}</span> as the placeholder. Save for reuse or write inline.</li>
@@ -32,7 +32,7 @@ export default function DocsPage() {
             </Card>
 
             <Card>
-                <h2 className="text-lg font-semibold text-slate-800">Scoring</h2>
+                <h2 className="text-lg font-semibold text-slate-600">Scoring</h2>
                 <p className="mt-3 text-[16px] leading-relaxed text-slate-600">
                     Responses are scored using <strong>normalized exact match</strong>.
                 </p>
@@ -41,7 +41,7 @@ export default function DocsPage() {
                     <li><span className="font-medium">1.0</span> means match after normalization.</li>
                     <li><span className="font-medium">0.0</span> means no match.</li>
                 </ul>
-                <p className="mt-3 rounded-lg border border-[#d7dde5] bg-[#f7fafc] px-3 py-2 text-[15px] text-slate-600">
+                <p className="mt-3 rounded-lg border border-[#d7dde5] px-3 py-2 text-[15px] text-slate-600 bg-white">
                     Example: model responds <span className="font-medium">Paris.</span>, ideal is
                     <span className="font-medium"> Paris</span>{' -> '}both normalize to
                     <span className="font-medium"> paris</span>{' -> '}score <span className="font-medium">1.0</span>
@@ -52,7 +52,7 @@ export default function DocsPage() {
             </Card>
 
             <Card>
-                <h2 className="text-lg font-semibold text-slate-800">Latency</h2>
+                <h2 className="text-lg font-semibold text-slate-600">Latency</h2>
                 <p className="mt-3 text-[16px] leading-relaxed text-slate-600">Latency is measured in milliseconds at two levels:</p>
                 <ul className="mt-2 list-disc space-y-1 pl-5 text-[16px] text-slate-600">
                     <li>Row-level: time for one LLM call (network round-trip to the provider).</li>
@@ -64,7 +64,7 @@ export default function DocsPage() {
             </Card>
 
             <Card>
-                <h2 className="text-lg font-semibold text-slate-800">Providers</h2>
+                <h2 className="text-lg font-semibold text-slate-600">Providers</h2>
                 <div className="mt-3 overflow-x-auto">
                     <table className="min-w-120 w-full border-collapse text-[16px]">
                         <thead>
@@ -106,7 +106,7 @@ export default function DocsPage() {
             </Card>
 
             <Card>
-                <h2 className="text-lg font-semibold text-slate-800">Tips</h2>
+                <h2 className="text-lg font-semibold text-slate-600">Tips</h2>
                 <ul className="mt-3 list-disc space-y-1 pl-5 text-[16px] text-slate-600">
                     <li>Set temperature to <span className="font-medium">0</span> for factual evals to keep reruns consistent.</li>
                     <li>Run the same dataset against multiple models to compare them directly.</li>

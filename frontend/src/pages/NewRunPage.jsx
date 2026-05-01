@@ -272,10 +272,8 @@ export default function NewRunPage() {
                                     <input
                                         type="text"
                                         className={[
-                                            'mt-2 w-full rounded-lg px-3 py-2 text-base',
-                                            requiresApiKey
-                                                ? 'border border-yellow-300 bg-white'
-                                                : 'border border-[#d3dae3] bg-white',
+                                            'mt-2 w-full field-input',
+                                            requiresApiKey ? 'border-yellow-300' : '',
                                         ].join(' ')}
                                         placeholder={`Paste your ${provider} API key`}
                                         value={currentProviderKey}
@@ -318,8 +316,8 @@ export default function NewRunPage() {
                                     <table className="w-full text-[16px]">
                                         <thead>
                                             <tr className="bg-[#eef2f7] text-left text-slate-500">
-                                                <th className="px-2 py-2 font-medium">Input</th>
-                                                <th className="px-2 py-2 font-medium">Ideal Output</th>
+                                                <th className="px-2 py-2 font-medium bg-white">Input</th>
+                                                <th className="px-2 py-2 font-medium bg-white">Ideal Output</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -359,7 +357,7 @@ export default function NewRunPage() {
                                     <div className="mt-3 space-y-2">
                                         <p className="text-sm text-slate-600">Parsed {importRows.length} row(s).</p>
                                         <input
-                                            className="w-full rounded-lg border border-[#d3dae3] bg-white px-3 py-2 text-base"
+                                            className="w-full field-input"
                                             placeholder="Dataset name"
                                             value={importName}
                                             onChange={(e) => setImportName(e.target.value)}

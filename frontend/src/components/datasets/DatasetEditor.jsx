@@ -59,7 +59,7 @@ export default function DatasetEditor({
 
                 <label className="mb-1 block text-[16px] font-medium text-slate-500">Dataset name</label>
                 <input
-                    className="w-full rounded-lg border border-[#d3dae3] bg-[#fbfcfd] px-3 py-2 text-base"
+                    className="w-full field-input"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder={namePlaceholder}
@@ -79,14 +79,14 @@ export default function DatasetEditor({
                                 <tr key={index} className="border-b border-[#e4e9f0]">
                                     <td className="px-2 py-2">
                                         <input
-                                            className="w-full rounded-md border border-[#d3dae3] bg-[#fbfcfd] px-2 py-1"
+                                            className="w-full rounded-md field-input px-2 py-1"
                                             value={row.input}
                                             onChange={(e) => updateRow(index, 'input', e.target.value)}
                                         />
                                     </td>
                                     <td className="px-2 py-2">
                                         <input
-                                            className="w-full rounded-md border border-[#d3dae3] bg-[#fbfcfd] px-2 py-1"
+                                            className="w-full rounded-md field-input px-2 py-1"
                                             value={row.ideal_output}
                                             onChange={(e) => updateRow(index, 'ideal_output', e.target.value)}
                                         />

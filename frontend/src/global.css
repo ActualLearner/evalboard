@@ -651,6 +651,10 @@
 .dark .stroke-\[\#e2e8f0\] { stroke: oklch(0.30 0.009 173); }
 .dark .border-dashed.border-\[\#d8dee6\] { border-color: oklch(0.34 0.010 172); }
 
+/* Map common light-only utility classes to dark theme equivalents */
+.dark .bg-white { background: var(--card); }
+.dark .bg-\[\#fff\] { background: var(--card); }
+.dark .text-\[\#f5f8fc\] { color: var(--color-popover-foreground); }
 /* ── Shared page component classes ─────────────────────────────────────── */
 @layer components {
     .page-title {

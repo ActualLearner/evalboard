@@ -124,7 +124,7 @@ export default function PromptsPage() {
                             <Card key={p.id}>
                                 <div className="flex items-start justify-between gap-3">
                                     <button className="min-w-0 flex-1 text-left" onClick={() => toggle(p.id)}>
-                                        <p className="text-base font-semibold text-slate-800">{p.name}</p>
+                                        <p className="text-base font-semibold text-slate-600">{p.name}</p>
                                         <p className="mt-1 text-[16px] text-slate-500">{formatDateTime(p.created_at)}</p>
                                         <p className={['mt-2 text-base text-slate-700', open ? 'whitespace-pre-wrap' : 'truncate'].join(' ')}>
                                             {p.template}
