@@ -36,14 +36,14 @@ export default function AppLayout() {
   const navigate = useNavigate()
   const uiScale = 0.80
   const scaledWidth = `calc(${100 / uiScale}% - 2px)`
-  const scaledMinHeight = `calc((100vh - 48px) / ${uiScale})`
+  const scaledMinHeight = `calc((100vh - 32px) / ${uiScale})`
 
   return (
     <div className="app-backdrop min-h-screen overflow-x-hidden overflow-y-auto p-2 sm:p-3">
       <div style={{ zoom: uiScale, width: scaledWidth, maxWidth: '100%' }}>
         <div
           className="app-shell relative flex w-full overflow-hidden rounded-3xl border"
-          style={{ minHeight: scaledMinHeight }}
+          style={{ minHeight: scaledMinHeight, height: scaledMinHeight }}
         >
           <button
             type="button"

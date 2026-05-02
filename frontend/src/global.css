@@ -47,7 +47,7 @@
 	--dark-500: oklch(0.595948633799505 0.014988979189537763 166.85537978117233);
 	--dark-600: oklch(0.48618925351000875 0.013898621745354845 169.78246096006526);
 	--dark-700: oklch(0.3933437914250005 0.011568856129075555 171.20552556077791);
-	--dark-800: oklch(0.3066229725855185 0.009048115842239366 173.70072292855826);
+	--dark-800: oklch(0.3066229725855185 0.009048115842239366 173.70072092855786);
 	--dark-900: oklch(0.227178858349217 0.004900688931807612 173.94552847938988);
 	--dark-1000: oklch(0.19203927209613392 0.005095209046585145 173.79315421146566);
 	--dark-1100: oklch(0.15631314500279186 0.003907598694507307 164.47172748876608);
@@ -106,13 +106,13 @@
 
 .dark {
 	--background: var(--dark-800);
-	--foreground: var(--dark-50);
+	--foreground: oklch(0.92 0.008 172); /* warm off-white, not pure white — prevents halation */
 
 	--card: var(--dark-700);
-	--card-foreground: var(--dark-50);
+	--card-foreground: oklch(0.90 0.008 172);
 
 	--popover: var(--dark-900);
-	--popover-foreground: var(--dark-50);
+	--popover-foreground: oklch(0.90 0.008 172);
 
 	--primary: var(--dark-300);
 	--primary-foreground: var(--dark-1000);
@@ -121,7 +121,7 @@
 	--secondary-foreground: var(--dark-200);
 
 	--muted: var(--dark-700);
-	--muted-foreground: var(--dark-500);
+	--muted-foreground: oklch(0.62 0.010 172); /* readable secondary text */
 
 	--accent: var(--dark-800);
 	--accent-foreground: var(--dark-100);
@@ -129,26 +129,26 @@
 	--destructive: oklch(27.719% 0.10473 26.958);
 	--destructive-foreground: oklch(80.643% 0.10096 16.423);
 
-	--border: var(--dark-500);
+	--border: oklch(0.38 0.010 172); /* slightly lighter border for better card definition */
 	--input: var(--dark-1000);
 	--ring: var(--dark-400);
 
-	--chart-1: oklch(0.488 0.243 264.376);
-	--chart-2: oklch(0.696 0.17 162.48);
-	--chart-3: oklch(0.769 0.188 70.08);
-	--chart-4: oklch(0.627 0.265 303.9);
-	--chart-5: oklch(0.645 0.246 16.439);
+	--chart-1: oklch(0.72 0.14 264.376); /* desaturated blue — less eye-strain in dark */
+	--chart-2: oklch(0.70 0.12 162.48);  /* desaturated green */
+	--chart-3: oklch(0.76 0.13 70.08);   /* muted amber */
+	--chart-4: oklch(0.68 0.15 303.9);   /* muted purple */
+	--chart-5: oklch(0.68 0.14 16.439);  /* muted red */
 
 	--sidebar: var(--dark-900);
-	--sidebar-foreground: var(--dark-200);
+	--sidebar-foreground: oklch(0.82 0.010 172);
 
 	--sidebar-primary: var(--dark-1100);
 	--sidebar-primary-foreground: var(--dark-50);
 
-	--sidebar-accent: var(--dark-1000);
-	--sidebar-accent-foreground: var(--dark-100);
+	--sidebar-accent: oklch(0.22 0.008 173);
+	--sidebar-accent-foreground: oklch(0.88 0.010 172);
 
-	--sidebar-border: oklch(1 0 0 / 10%);
+	--sidebar-border: oklch(1 0 0 / 8%);
 	--sidebar-ring: oklch(0.552 0.016 285.938);
 }
 
@@ -200,14 +200,6 @@
 	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
 	--color-sidebar-border: var(--sidebar-border);
 	--color-sidebar-ring: var(--sidebar-ring);
-
-	/* --shadow-2xs: 1px 1px 0 rgba(0, 0, 0, 0.25);
-	--shadow-xs: 2px 2px 0 rgba(0, 0, 0, 0.25);
-	--shadow-sm: 3px 3px 0 rgba(0, 0, 0, 0.25);
-	--shadow-md: 4px 4px 0 rgba(0, 0, 0, 0.25);
-	--shadow-lg: 6px 6px 0 rgba(0, 0, 0, 0.25);
-	--shadow-xl: 8px 8px 0 rgba(0, 0, 0, 0.25);
-	--shadow-2xl: 12px 12px 0 rgba(0, 0, 0, 0.25); */
 }
 
 @layer base {
@@ -312,7 +304,7 @@
 	}
 }
 
-/* ── Dark mode overrides for layout components ─────────────────────────── */
+/* ── Dark mode overrides ─────────────────────────────────────── */
 .dark body {
     background-image:
         radial-gradient(circle at 12% 10%, oklch(0.22 0.012 175 / 0.7), transparent 42%),
@@ -325,16 +317,15 @@
 }
 
 .dark .app-shell {
-    border-color: oklch(0.32 0.010 172);
+    border-color: oklch(0.34 0.010 172);
     background: linear-gradient(165deg, oklch(0.22 0.008 173), oklch(0.19 0.007 171));
-    box-shadow:
-        0 1px 0 oklch(1 0 0 / 0.04) inset,
-        0 16px 36px oklch(0 0 0 / 0.4);
+    /* No shadow in dark mode — use border for elevation instead (Robi's rule) */
+    box-shadow: none;
 }
 
 .dark .app-sidebar {
     background: linear-gradient(180deg, oklch(0.20 0.007 173), oklch(0.17 0.006 172));
-    border-right-color: oklch(0.30 0.010 172);
+    border-right-color: oklch(0.32 0.010 172);
 }
 
 .dark .app-main {
@@ -342,22 +333,138 @@
 }
 
 .dark .app-card {
-    border-color: oklch(0.34 0.010 172);
-    background: linear-gradient(180deg, oklch(0.27 0.009 173), oklch(0.24 0.008 172));
-    box-shadow: 0 2px 10px oklch(0 0 0 / 0.25);
+    border-color: oklch(0.36 0.010 172);
+    background: linear-gradient(180deg, oklch(0.28 0.009 173), oklch(0.25 0.008 172));
+    /* No shadow in dark — use border contrast instead */
+    box-shadow: none;
 }
 
 .dark .app-card:hover {
-    box-shadow: 0 8px 22px oklch(0 0 0 / 0.40);
+    border-color: oklch(0.42 0.012 172);
+    box-shadow: none;
 }
 
 .dark .app-inline-error {
     border-color: oklch(0.38 0.08 22);
     background: oklch(0.22 0.05 22);
-    color: oklch(0.75 0.08 20);
+    color: oklch(0.80 0.08 20);
 }
 
-/* ── Landing page styles ────────────────────────────────────────────────── */
+/* ── Dark mode — all hardcoded slate/light colors → CSS vars ───── */
+
+/* Text colors */
+.dark .text-slate-900 { color: oklch(0.92 0.008 172); }
+.dark .text-slate-800 { color: oklch(0.88 0.009 172); }
+.dark .text-slate-700 { color: oklch(0.82 0.009 172); }
+.dark .text-slate-600 { color: oklch(0.72 0.010 172); }
+.dark .text-slate-500 { color: oklch(0.62 0.010 172); }
+.dark .text-slate-400 { color: oklch(0.55 0.009 172); }
+
+/* Border colors */
+.dark .border-\[\#d8dee6\] { border-color: oklch(0.36 0.010 172); }
+.dark .border-\[\#d2d8de\] { border-color: oklch(0.36 0.010 172); }
+.dark .border-\[\#d5dae1\] { border-color: oklch(0.36 0.010 172); }
+.dark .border-\[\#d3dae3\] { border-color: oklch(0.36 0.010 172); }
+.dark .border-\[\#d4d8de\] { border-color: oklch(0.36 0.010 172); }
+.dark .border-\[\#e4e9f0\] { border-color: oklch(0.32 0.009 172); }
+.dark .border-\[\#d7dde5\] { border-color: oklch(0.36 0.010 172); }
+.dark .border-dashed.border-\[\#d8dee6\] { border-color: oklch(0.36 0.010 172); }
+
+/* Background colors */
+.dark .bg-white { background-color: oklch(0.28 0.009 173); }
+.dark .bg-\[\#fff\] { background-color: oklch(0.28 0.009 173); }
+.dark .bg-\[\#fbfcfd\] { background-color: oklch(0.26 0.008 173); }
+.dark .bg-\[\#edf2f7\] { background-color: oklch(0.30 0.009 173); }
+.dark .bg-\[\#e5ebf3\] { background-color: oklch(0.29 0.009 173); }
+.dark .bg-\[\#eef2f7\] { background-color: oklch(0.30 0.009 173); }
+.dark .bg-\[\#eaf0f8\] { background-color: oklch(0.30 0.009 173); }
+.dark .bg-\[\#f2f5f8\] { background-color: oklch(0.27 0.009 173); }
+
+/* Highlighted/active state */
+.dark .bg-\[\#bce7ff\] { background-color: oklch(0.38 0.06 220); color: oklch(0.92 0.008 172); }
+.dark .bg-\[\#8dd9a9\] { background-color: oklch(0.48 0.09 158); }
+
+/* Hover backgrounds */
+.dark .hover\:bg-\[\#eef2f6\]:hover { background-color: oklch(0.32 0.009 173); }
+.dark .hover\:bg-\[\#eef2f7\]:hover { background-color: oklch(0.32 0.009 173); }
+.dark .hover\:bg-\[\#eceff3\]:hover { background-color: oklch(0.32 0.009 173); }
+.dark .hover\:bg-\[\#e7eef6\]:hover { background-color: oklch(0.32 0.009 173); }
+.dark .hover\:bg-\[\#f4f7fb\]:hover { background-color: oklch(0.30 0.009 173); }
+.dark .hover\:bg-\[\#eef3f8\]:hover { background-color: oklch(0.32 0.009 173); }
+
+/* Grid lines in SVG charts */
+.dark .stroke-\[\#e2e8f0\] { stroke: oklch(0.35 0.008 172); }
+
+/* Stroke color for chart lines */
+.dark .stroke-slate-200 { stroke: oklch(0.35 0.008 172); }
+
+/* ScoreDonut center background */
+.dark .bg-\[\#f8fafc\] { background-color: oklch(0.25 0.008 173); }
+
+/* Table row hover */
+.dark tr.hover\:bg-\[\#f4f7fb\]:hover { background-color: oklch(0.30 0.009 173); }
+
+/* Score badges — desaturated for dark mode, per Robi's rule */
+.dark .bg-emerald-100 { background-color: oklch(0.30 0.06 158); }
+.dark .text-emerald-700 { color: oklch(0.80 0.10 158); }
+.dark .bg-amber-100 { background-color: oklch(0.30 0.06 80); }
+.dark .text-amber-700 { color: oklch(0.80 0.10 75); }
+.dark .bg-rose-100 { background-color: oklch(0.28 0.06 20); }
+.dark .text-rose-700 { color: oklch(0.78 0.10 20); }
+.dark .bg-rose-50 { background-color: oklch(0.26 0.04 20); }
+.dark .text-rose-700 { color: oklch(0.78 0.10 20); }
+.dark .border-rose-200 { border-color: oklch(0.38 0.07 20); }
+.dark .hover\:bg-rose-100:hover { background-color: oklch(0.32 0.07 20); }
+.dark .bg-rose-50\/60 { background-color: oklch(0.26 0.04 20 / 0.6); }
+
+/* Yellow/warning box on NewRunPage */
+.dark .bg-yellow-50 { background-color: oklch(0.26 0.05 80); }
+.dark .border-yellow-200 { border-color: oklch(0.40 0.08 78); }
+.dark .text-yellow-700 { color: oklch(0.82 0.12 78); }
+.dark .border-yellow-300 { border-color: oklch(0.44 0.09 78); }
+
+/* Delete modal backdrop + card */
+.dark .bg-slate-900\/40 { background-color: oklch(0.10 0.005 172 / 0.60); }
+
+/* Input/textarea/select elements */
+.dark input:not([type="range"]),
+.dark textarea,
+.dark select {
+    background-color: oklch(0.24 0.008 173);
+    border-color: oklch(0.38 0.010 172);
+    color: oklch(0.90 0.008 172);
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+    color: oklch(0.55 0.008 172);
+}
+
+.dark input:focus,
+.dark textarea:focus {
+    border-color: oklch(0.52 0.012 172);
+    box-shadow: 0 0 0 3px oklch(0.52 0.012 172 / 0.15);
+}
+
+/* Primary button — desaturated blue for dark */
+.dark .bg-\[\#3a6fb2\] { background-color: oklch(0.52 0.08 240); }
+.dark .hover\:bg-\[\#325f99\]:hover { background-color: oklch(0.48 0.09 240); }
+.dark .text-\[\#f5f8fc\] { color: oklch(0.96 0.004 240); }
+
+/* Table action buttons */
+.dark .border-\[\#d3dae3\].bg-\[\#fbfcfd\] {
+    border-color: oklch(0.38 0.010 172);
+    background-color: oklch(0.28 0.009 173);
+    color: oklch(0.85 0.008 172);
+}
+
+/* Ring highlight for datasets */
+.dark .ring-\[\#7bc5e6\] { --tw-ring-color: oklch(0.60 0.08 220); }
+
+/* Donut center fill — the "Total Items" text inside the donut */
+.dark .text-slate-900 { color: oklch(0.92 0.008 172); }
+
+/* ── Landing page styles ──────────────────────────────────────── */
 .landing-root {
     background: var(--background);
     color: var(--foreground);
@@ -453,13 +560,15 @@
     border-radius: 1.5rem;
     background: linear-gradient(135deg, var(--secondary), var(--muted));
     border: 1px solid var(--border);
+    /* No shadow in dark — handled below */
     box-shadow: 0 8px 32px oklch(0.4 0.04 250 / 0.18);
     color: var(--primary);
     animation: logo-float 4s ease-in-out infinite;
 }
 
 .dark .landing-logo-inner {
-    box-shadow: 0 8px 32px oklch(0 0 0 / 0.5);
+    box-shadow: none;
+    border-color: oklch(0.38 0.010 172);
 }
 
 @keyframes logo-float {
@@ -543,12 +652,12 @@
 .dark .landing-cta-primary {
     background: oklch(0.55 0.07 255);
     color: oklch(0.12 0.02 255);
-    box-shadow: 0 4px 18px oklch(0.55 0.08 255 / 0.35);
+    box-shadow: none;
 }
 
 .dark .landing-cta-primary:hover {
     background: oklch(0.62 0.08 255);
-    box-shadow: 0 8px 28px oklch(0.55 0.08 255 / 0.50);
+    box-shadow: none;
 }
 
 .landing-cta-secondary {
@@ -582,16 +691,15 @@
     background: var(--card);
     text-align: left;
     backdrop-filter: blur(8px);
-    transition: transform 240ms, box-shadow 240ms;
+    transition: transform 240ms cubic-bezier(0.4, 0, 0.2, 1), border-color 240ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .landing-feature-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 32px oklch(0.4 0.03 250 / 0.12);
 }
 
 .dark .landing-feature-card:hover {
-    box-shadow: 0 12px 32px oklch(0 0 0 / 0.35);
+    border-color: oklch(0.44 0.012 172);
 }
 
 .landing-feature-icon {
@@ -627,35 +735,7 @@
     opacity: 0.7;
 }
 
-/* ── Dark mode StatCard / Dashboard text overrides ───────────────────────── */
-.dark .text-slate-900 { color: var(--foreground); }
-.dark .text-slate-700 { color: var(--foreground); }
-.dark .text-slate-600 { color: oklch(0.70 0.008 173); }
-.dark .text-slate-500 { color: oklch(0.60 0.008 173); }
-.dark .border-\[\#d8dee6\] { border-color: oklch(0.34 0.010 172); }
-.dark .bg-\[\#edf2f7\] { background: oklch(0.27 0.009 173); }
-.dark .bg-\[\#fbfcfd\] { background: var(--card); }
-.dark .bg-\[\#e5ebf3\] { background: var(--sidebar-accent); }
-.dark .hover\:bg-\[\#eef2f6\]:hover { background: var(--muted); }
-.dark .hover\:bg-\[\#eceff3\]:hover { background: var(--muted); }
-.dark .hover\:bg-\[\#e7eef6\]:hover { background: oklch(0.30 0.010 173); }
-.dark .hover\:bg-\[\#f4f7fb\]:hover { background: oklch(0.25 0.008 173); }
-.dark .hover\:bg-\[\#eef3f8\]:hover { background: oklch(0.28 0.009 173); }
-.dark .border-\[\#d2d8de\] { border-color: oklch(0.34 0.010 172); }
-.dark .border-\[\#d5dae1\] { border-color: oklch(0.34 0.010 172); }
-.dark .border-\[\#d3dae3\] { border-color: oklch(0.34 0.010 172); }
-.dark .border-\[\#d4d8de\] { border-color: oklch(0.34 0.010 172); }
-.dark .border-\[\#e4e9f0\] { border-color: oklch(0.30 0.009 173); }
-.dark .bg-\[\#bce7ff\] { background: oklch(0.38 0.06 250); color: var(--foreground); }
-.dark .bg-\[\#8dd9a9\] { background: oklch(0.52 0.09 162); }
-.dark .stroke-\[\#e2e8f0\] { stroke: oklch(0.30 0.009 173); }
-.dark .border-dashed.border-\[\#d8dee6\] { border-color: oklch(0.34 0.010 172); }
-
-/* Map common light-only utility classes to dark theme equivalents */
-.dark .bg-white { background: var(--card); }
-.dark .bg-\[\#fff\] { background: var(--card); }
-.dark .text-\[\#f5f8fc\] { color: var(--color-popover-foreground); }
-/* ── Shared page component classes ─────────────────────────────────────── */
+/* ── Shared page component classes ──────────────────────────────── */
 @layer components {
     .page-title {
         font-size: 2.1rem;
@@ -733,12 +813,12 @@
     }
 
     .dark .primary-btn {
-        background: oklch(0.55 0.07 255);
-        color: oklch(0.12 0.02 255);
+        background: oklch(0.52 0.08 240);
+        color: oklch(0.96 0.004 240);
     }
 
     .dark .primary-btn:hover {
-        background: oklch(0.62 0.08 255);
+        background: oklch(0.56 0.09 240);
     }
 
     .table-action-btn {
@@ -781,11 +861,51 @@
 
     .dark .danger-btn {
         border-color: oklch(0.38 0.08 22);
-        background: oklch(0.22 0.05 22);
-        color: oklch(0.75 0.08 20);
+        background: oklch(0.24 0.05 22);
+        color: oklch(0.80 0.09 20);
     }
 
     .dark .danger-btn:hover {
-        background: oklch(0.28 0.07 22);
+        background: oklch(0.30 0.07 22);
     }
+}
+
+/* ── Scrollbar theming ──────────────────────────────────────────── */
+/* Light mode scrollbar */
+:root {
+    --scrollbar-thumb: oklch(0.72 0.006 244);
+    --scrollbar-thumb-hover: oklch(0.60 0.008 244);
+    --scrollbar-track: oklch(0.94 0.003 244);
+}
+
+.dark {
+    --scrollbar-thumb: oklch(0.38 0.008 172);
+    --scrollbar-thumb-hover: oklch(0.46 0.010 172);
+    --scrollbar-track: oklch(0.20 0.006 173);
+}
+
+/* Webkit scrollbars (Chrome, Safari, Edge) */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+*::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+    border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 999px;
+    transition: background 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
 }
