@@ -20,7 +20,7 @@ import Legend from '../components/ui/Legend'
 import ScoreDonut from '../components/charts/ScoreDonut'
 
 export default function DashboardPage() {
-  const [period, setPeriod] = useState('24h')
+  const [period, setPeriod] = useState('1m')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [stats, setStats] = useState(null)
