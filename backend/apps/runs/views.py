@@ -6,6 +6,7 @@ from .models import Run
 from .serializers import RunSerializer
 from .services import execute_run
 from .stats import get_dashboard_stats
+from apps.core.llm_client import LLMError
 
 REQUIRES_BYOK = ["openai"]
 
@@ -40,10 +41,19 @@ class RunListView(APIView):
 
         try:
             execute_run(run, api_key)
+        except LLMError as e:
+            run.status = "failed"
+            run.save()
+            http_status = (
+                e.status_code if e.status_code in (400, 401, 402, 429) else 502
+            )
+            return Response({"error": str(e)}, status=http_status)
         except Exception as e:
             run.status = "failed"
             run.save()
-            return Response({"error": str(e)}, status=500)
+            return Response(
+                {"error": "An unexpected error occurred. Please try again."}, status=500
+            )
 
         return Response(RunSerializer(run).data, status=status.HTTP_201_CREATED)
 
